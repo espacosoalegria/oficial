@@ -81,7 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Formatar data para português
         let dataFormatada;
         try {
-            const dataObj = new Date(data);
+            const [ano, mes, dia] = data.split('-');
+            const dataObj = new Date(ano, mes - 1, dia);
             if (isNaN(dataObj.getTime())) {
                 throw new Error('Data inválida');
             }
@@ -97,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validação: data não pode ser passada
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-        const dataSelecionada = new Date(data);
+        const [anoSel, mesSel, diaSel] = data.split('-');
+        const dataSelecionada = new Date(anoSel, mesSel - 1, diaSel);
         dataSelecionada.setHours(0, 0, 0, 0);
         
         if (dataSelecionada < hoje) {
@@ -107,19 +109,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Construir mensagem profissional
-        let mensagem = `*🏖️ ESPAÇO SÓ ALEGRIA - SOLICITAÇÃO DE RESERVA*%0a%0a`;
-        mensagem += `*👤 Cliente:* ${nome}%0a`;
-        mensagem += `*📅 Data:* ${dataFormatada}%0a`;
-        mensagem += `*⏰ Horário:* ${horaInicio} às ${horaFim}%0a`;
-        mensagem += `*👥 Pessoas:* ${pessoas}%0a`;
-        mensagem += `%0a*🔍 Gostaria de verificar disponibilidade e valores para esta data.*%0a`;
-        mensagem += `%0a✨ Aguardo retorno!`;
-        
-        // Gerar link do WhatsApp
-        const url = `https://wa.me/${phoneNumber}?text=${mensagem}`;
-        
-        // Abrir WhatsApp em nova aba
-        window.open(url, '_blank');
+const mensagem = `
+🏖️ ESPAÇO SÓ ALEGRIA - SOLICITAÇÃO DE RESERVA
+
+👤 Cliente: ${nome}
+📅 Data: ${dataFormatada}
+⏰ Horário: ${horaInicio} às ${horaFim}
+👥 Pessoas: ${pessoas}
+
+🔍 Gostaria de verificar disponibilidade e valores para esta data.
+
+✨ Aguardo retorno!
+`;
+
+// Gerar link do WhatsApp
+const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(mensagem)}`;
+
+// Abrir WhatsApp em nova aba
+window.open(url, '_blank');
         
         // Opcional: limpar formulário após envio
         // nomeInput.value = '';
@@ -239,8 +246,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== PREVENIR DATA RETROATIVA (opcional) =====
     const dataInput = document.getElementById('data');
     if (dataInput) {
-        const hoje = new Date().toISOString().split('T')[0];
-        dataInput.setAttribute('min', hoje);
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+
+    const hojeFormatado = `${ano}-${mes}-${dia}`;
+
+        dataInput.setAttribute('min', hojeFormatado);
     }
     
     console.log('✅ Site Espaço Só Alegria carregado com sucesso!');
